@@ -1,0 +1,67 @@
+{
+  "title": "Sprints",
+  "type": [
+    "null",
+    "object"
+  ],
+  "properties": {
+    "self": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "uri"
+    },
+    "id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "state": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "startDate": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "endDate": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "completeDate": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "date-time"
+    },
+    "originBoardId": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "goal": {
+      "type": [
+        "null",
+        "string"
+      ]
+    }
+  }
+}

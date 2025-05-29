@@ -1,10 +1,11 @@
 import json
+
 import pytz
 import singer
+from singer import Transformer, metadata, metrics, utils
 
-from singer import metrics, utils, metadata, Transformer
-from .http import Paginator,JiraNotFoundError
 from .context import Context
+from .http import Paginator
 
 
 def raise_if_bookmark_cannot_advance(worklogs):
@@ -255,6 +256,52 @@ class Worklogs(Stream):
                 break
 
 
+class Boards(Stream):
+    @staticmethod
+    def fetch_board_ids():
+        pager = Paginator(Context.client, items_key="values")
+        path = "/rest/agile/1.0/board"
+
+        board_ids = []
+
+        for page in pager.pages("boards", "GET", path):
+            board_ids.extend(
+                board["id"] for board in page
+            )
+
+        return board_ids
+
+    def sync(self):
+        pager = Paginator(Context.client, items_key="values")
+        path = "/rest/agile/1.0/board"
+
+        for page in pager.pages(self.tap_stream_id, "GET", path):
+            self.write_page(page)
+
+
+class Epics(Stream):
+    def sync(self):
+        board_ids = Boards.fetch_board_ids()
+
+        for board_id in board_ids:
+            pager = Paginator(Context.client, items_key="values")
+            path = f"/rest/agile/1.0/board/{board_id}/epic"
+
+            for page in pager.pages(self.tap_stream_id, "GET", path):
+                self.write_page(page)
+
+
+class Sprints(Stream):
+    def sync(self):
+        board_ids = Boards.fetch_board_ids()
+
+        for board_id in board_ids:
+            pager = Paginator(Context.client, items_key="values")
+            path = f"/rest/agile/1.0/board/{board_id}/sprint"
+
+            for page in pager.pages(self.tap_stream_id, "GET", path):
+                self.write_page(page)
+
 VERSIONS = Stream("versions", ["id"], indirect_stream=True)
 COMPONENTS = Stream("components", ["id"], indirect_stream=True)
 ISSUES = Issues("issues", ["id"])
@@ -263,6 +310,9 @@ ISSUE_TRANSITIONS = Stream("issue_transitions", ["id"],
                            indirect_stream=True)
 PROJECTS = Projects("projects", ["id"])
 CHANGELOGS = Stream("changelogs", ["id"], indirect_stream=True)
+BOARDS = Boards("boards", ["id"])
+SPRINTS = Sprints("sprints", ["id"])
+EPICS = Epics("epics", ["id"])
 
 ALL_STREAMS = [
     PROJECTS,
@@ -281,6 +331,9 @@ ALL_STREAMS = [
     CHANGELOGS,
     ISSUE_TRANSITIONS,
     Worklogs("worklogs", ["id"]),
+    BOARDS,
+    SPRINTS,
+    EPICS,
 ]
 
 ALL_STREAM_IDS = [s.tap_stream_id for s in ALL_STREAMS]

@@ -1,0 +1,40 @@
+{
+  "title": "Epics",
+  "type": [
+    "null",
+    "object"
+  ],
+  "properties": {
+    "self": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "uri"
+    },
+    "id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "summary": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "done": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    }
+  }
+}
