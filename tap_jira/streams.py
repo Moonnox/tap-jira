@@ -5,7 +5,7 @@ import singer
 from singer import Transformer, metadata, metrics, utils
 
 from .context import Context
-from .http import Paginator
+from .http import JiraBadRequestError, Paginator
 
 
 def raise_if_bookmark_cannot_advance(worklogs):
@@ -297,11 +297,22 @@ class Sprints(Stream):
         board_ids = Boards.fetch_board_ids()
 
         for board_id in board_ids:
-            pager = Paginator(Context.client, items_key="values")
-            path = f"/rest/agile/1.0/board/{board_id}/sprint"
+            try:
+                pager = Paginator(Context.client, items_key="values")
+                path = f"/rest/agile/1.0/board/{board_id}/sprint"
 
-            for page in pager.pages(self.tap_stream_id, "GET", path):
-                self.write_page(page)
+                for page in pager.pages(self.tap_stream_id, "GET", path):
+                    self.write_page(page)
+            except JiraBadRequestError as e:
+                if "does not support sprints" in str(e):
+                    LOGGER.warning(
+                        "Board %s does not support sprints, skipping.",
+                        board_id
+                    )
+                else:
+                    # If the error is not related to sprints, re-raise it
+                    raise e
+
 
 VERSIONS = Stream("versions", ["id"], indirect_stream=True)
 COMPONENTS = Stream("components", ["id"], indirect_stream=True)
