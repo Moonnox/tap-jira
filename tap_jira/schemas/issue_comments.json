@@ -23,6 +23,12 @@
         "string"
       ]
     },
+    "issueKey": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
     "author": {
       "$ref": "user"
     },
