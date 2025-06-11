@@ -58,25 +58,33 @@ class BaseStream:
 def discover():
     catalog = Catalog([])
 
-    if not Context.client:
-        LOGGER.error("Client is not initialized. Cannot discover streams.")
-        return catalog
+    # if not Context.client:
+    #     LOGGER.error("Client is not initialized. Cannot discover streams.")
+    #     return catalog
+    try:
+        Context.client = Client(Context.config, Context.config_path)
 
-    projects = Context.client.request("projects", "GET", "/rest/api/3/project/search")
-    schema = Schema.from_dict(load_schema("base"))
-
-    for project in projects.get("values", []):
-        schema.title = project["name"] + " - " + project["key"]
-        mdata = generate_metadata(BaseStream(), schema)
-
-        stream = CatalogEntry(
-            stream=project["name"],
-            tap_stream_id=project["name"],
-            key_properties=["id"],
-            schema=schema,
-            metadata=mdata,
+        projects = Context.client.request(
+            "projects", "GET", "/rest/api/3/project/search"
         )
-        catalog.streams.append(stream)
+        schema = Schema.from_dict(load_schema("base"))
+
+        for project in projects.get("values", []):
+            schema.title = project["name"] + " - " + project["key"]
+            mdata = generate_metadata(BaseStream(), schema)
+
+            stream = CatalogEntry(
+                stream=project["name"],
+                tap_stream_id=project["name"],
+                key_properties=["id"],
+                schema=schema,
+                metadata=mdata,
+            )
+            catalog.streams.append(stream)
+    except Exception as e:
+        LOGGER.error(f"Error during discovery: {e}")
+
+        return catalog
 
     # print(projects)
 
@@ -152,12 +160,12 @@ def main():
         Context.state = args.state
         Context.catalog = catalog
 
-        Context.client = Client(Context.config, Context.config_path)
-
         if args.discover:
             discover().dump()
             print()
         else:
+            Context.client = Client(Context.config, Context.config_path)
+
             sync()
     finally:
         LOGGER.info("Cancelling login timer")
