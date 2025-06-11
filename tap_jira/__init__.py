@@ -1,33 +1,38 @@
 #!/usr/bin/env python3
-import os
 import json
+import os
+import threading
+
 import singer
-from singer import utils
-from singer import metadata
+from singer import metadata, utils
 from singer.catalog import Catalog, CatalogEntry, Schema
+
 from tap_jira import streams as streams_
 from tap_jira.context import Context
 from tap_jira.http import Client
-import threading
 
 LOGGER = singer.get_logger()
-REQUIRED_CONFIG_KEYS_CLOUD = ["start_date",
-                              "user_agent",
-                              "site_name",
-                              "access_token",
-                              "refresh_token",
-                              "client_id",
-                              "client_secret"]
-REQUIRED_CONFIG_KEYS_HOSTED = ["start_date",
-                               "username",
-                               "password",
-                               "base_url",
-                               "user_agent"]
+REQUIRED_CONFIG_KEYS_CLOUD = [
+    "start_date",
+    "user_agent",
+    "site_name",
+    "access_token",
+    "refresh_token",
+    "client_id",
+    "client_secret",
+]
+REQUIRED_CONFIG_KEYS_HOSTED = [
+    "start_date",
+    "username",
+    "password",
+    "base_url",
+    "user_agent",
+]
 
 
 def get_args():
     unchecked_args = utils.parse_args([])
-    if 'username' in unchecked_args.config.keys():
+    if "username" in unchecked_args.config.keys():
         return utils.parse_args(REQUIRED_CONFIG_KEYS_HOSTED)
 
     return utils.parse_args(REQUIRED_CONFIG_KEYS_CLOUD)
@@ -46,31 +51,62 @@ def load_schema(tap_stream_id):
     return schema
 
 
+class BaseStream:
+    pk_fields = ["id"]
+
+
 def discover():
     catalog = Catalog([])
-    for stream in streams_.ALL_STREAMS:
-        schema = Schema.from_dict(load_schema(stream.tap_stream_id))
 
-        mdata = generate_metadata(stream, schema)
+    if not Context.client:
+        LOGGER.error("Client is not initialized. Cannot discover streams.")
+        return catalog
 
-        catalog.streams.append(CatalogEntry(
-            stream=stream.tap_stream_id,
-            tap_stream_id=stream.tap_stream_id,
-            key_properties=stream.pk_fields,
+    projects = Context.client.request("projects", "GET", "/rest/api/3/project/search")
+    schema = Schema.from_dict(load_schema("base"))
+
+    for project in projects.get("values", []):
+        schema.title = project["name"] + " - " + project["key"]
+        mdata = generate_metadata(BaseStream(), schema)
+
+        stream = CatalogEntry(
+            stream=project["name"],
+            tap_stream_id=project["name"],
+            key_properties=["id"],
             schema=schema,
-            metadata=mdata))
+            metadata=mdata,
+        )
+        catalog.streams.append(stream)
+
+    # print(projects)
+
+    # for stream in streams_.ALL_STREAMS:
+    #     schema = Schema.from_dict(load_schema(stream.tap_stream_id))
+
+    #     mdata = generate_metadata(stream, schema)
+
+    #     catalog.streams.append(CatalogEntry(
+    #         stream=stream.tap_stream_id,
+    #         tap_stream_id=stream.tap_stream_id,
+    #         key_properties=stream.pk_fields,
+    #         schema=schema,
+    #         metadata=mdata))
     return catalog
 
 
 def generate_metadata(stream, schema):
     mdata = metadata.new()
-    mdata = metadata.write(mdata, (), 'table-key-properties', stream.pk_fields)
+    mdata = metadata.write(mdata, (), "table-key-properties", stream.pk_fields)
 
     for field_name in schema.properties.keys():
         if field_name in stream.pk_fields:
-            mdata = metadata.write(mdata, ('properties', field_name), 'inclusion', 'automatic')
+            mdata = metadata.write(
+                mdata, ("properties", field_name), "inclusion", "automatic"
+            )
         else:
-            mdata = metadata.write(mdata, ('properties', field_name), 'inclusion', 'available')
+            mdata = metadata.write(
+                mdata, ("properties", field_name), "inclusion", "available"
+            )
 
     return metadata.to_list(mdata)
 
@@ -82,7 +118,6 @@ def output_schema(stream):
 
 def sync():
     streams_.validate_dependencies()
-
 
     # two loops through streams are necessary so that the schema is output
     # BEFORE syncing any streams. Otherwise, the first stream might generate
@@ -111,8 +146,7 @@ def main():
     try:
         args = get_args()
         # Setup Context
-        catalog = Catalog.from_dict(args.properties) \
-            if args.properties else discover()
+        catalog = Catalog.from_dict(args.properties) if args.properties else discover()
         Context.config = args.config
         Context.config_path = args.config_path
         Context.state = args.state
