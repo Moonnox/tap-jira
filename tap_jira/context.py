@@ -1,63 +1,51 @@
-from datetime import datetime
-from singer import utils, metadata
-from .http import check_status
+from argparse import Namespace
+from dataclasses import dataclass
+from typing import Self
+
+from tap_jira.jira import Jira
 
 
-class Context():
-    config = None
-    state = None
-    catalog = None
-    client = None
-    stream_map = {}
-
-    @classmethod
-    def get_catalog_entry(cls, stream_name):
-        if not cls.stream_map:
-            cls.stream_map = {s.tap_stream_id: s for s in cls.catalog.streams}
-        return cls.stream_map.get(stream_name)
+@dataclass
+class Config:
+    client_id: str
+    client_secret: str
+    access_token: str
+    refresh_token: str
+    site_name: str
 
     @classmethod
-    def is_selected(cls, stream_name):
-        stream = cls.get_catalog_entry(stream_name)
-        if stream is None:
-            return False
-        stream_metadata = metadata.to_map(stream.metadata)
-        return metadata.get(stream_metadata, (), 'selected')
+    def from_dict(cls, data: dict) -> Self:
+        return cls(
+            client_id=data["client_id"],
+            client_secret=data["client_secret"],
+            access_token=data["access_token"],
+            refresh_token=data["refresh_token"],
+            site_name=data["site_name"],
+        )
+
+
+class Context:
+    config: Config
+    config_path: str
+    jira: Jira
 
     @classmethod
-    def bookmarks(cls):
-        if "bookmarks" not in cls.state:
-            cls.state["bookmarks"] = {}
-        return cls.state["bookmarks"]
+    def from_args(cls, args: Namespace) -> Self:
+        config = Config.from_dict(args.config)
+        jira = Jira(
+            oauth={
+                "access_token": config.access_token,
+                "refresh_token": config.refresh_token,
+                "client_id": config.client_id,
+                "client_secret": config.client_secret,
+                "config_path": args.config_path,
+            },
+            site_name=config.site_name,
+        )
 
-    @classmethod
-    def bookmark(cls, paths):
-        bookmark = cls.bookmarks()
-        for path in paths:
-            if path not in bookmark:
-                bookmark[path] = {}
-            bookmark = bookmark[path]
-        return bookmark
+        return cls(jira=jira, config=config, config_path=args.config_path)
 
-    @classmethod
-    def set_bookmark(cls, path, val):
-        if isinstance(val, datetime):
-            val = utils.strftime(val)
-        cls.bookmark(path[:-1])[path[-1]] = val
-
-    @classmethod
-    def update_start_date_bookmark(cls, path):
-        val = cls.bookmark(path)
-        if not val:
-            val = cls.config["start_date"]
-            val = utils.strptime_to_utc(val)
-            cls.set_bookmark(path, val)
-        if isinstance(val, str):
-            val = utils.strptime_to_utc(val)
-        return val
-
-    @classmethod
-    def retrieve_timezone(cls):
-        response = cls.client.send("GET", "/rest/api/2/myself")
-        check_status(response)
-        return response.json()["timeZone"]
+    def __init__(self, jira: Jira, config: Config, config_path: str):
+        self.jira = jira
+        self.config = config
+        self.config_path = config_path

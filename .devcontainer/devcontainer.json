@@ -1,0 +1,25 @@
+{
+	"name": "[Moonnox] Hotglue Jira Tap",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "postCreateCommand": "pip install -e .[dev]",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "editorconfig.editorconfig",
+        "ms-python.python",
+        "ms-python.pylint",
+        "ms-python.flake8",
+        "ms-python.isort",
+        "ms-python.black-formatter",
+        "eamodio.gitlens",
+        "KevinRose.vsc-python-indent",
+        "tamasfe.even-better-toml"
+      ]
+    }
+  }
+}
