@@ -1,5 +1,5 @@
 import json
-from typing import Any, Self
+from typing import Any
 
 import requests
 
@@ -30,7 +30,7 @@ class OauthStrategy:
         self._session = requests.Session()
 
     @classmethod
-    def from_dict(cls, data: dict[str, str]) -> Self:
+    def from_dict(cls, data: dict[str, str]) -> "OauthStrategy":
         access_token = data.get("access_token")
         if not access_token:
             raise ValueError("Access token is required for OAuth strategy.")
@@ -102,7 +102,7 @@ class OauthStrategy:
                 ) from e
 
     def _refresh_tokens(self) -> tuple[str, str]:
-        url = f"{BASE_URL}/oauth/token"
+        url = "https://auth.atlassian.com/oauth/token"
         result = {
             "grant_type": "refresh_token",
             "client_id": self._client_id,
@@ -111,7 +111,7 @@ class OauthStrategy:
         }
 
         try:
-            with self._session.post(url, data=result) as response:
+            with requests.post(url, data=result, timeout=10) as response:
                 response.raise_for_status()
                 result = response.json()
 

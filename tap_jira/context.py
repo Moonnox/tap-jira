@@ -1,6 +1,5 @@
 from argparse import Namespace
 from dataclasses import dataclass
-from typing import Self
 
 from tap_jira.jira import Jira
 
@@ -14,7 +13,7 @@ class Config:
     site_name: str
 
     @classmethod
-    def from_dict(cls, data: dict) -> Self:
+    def from_dict(cls, data: dict) -> "Config":
         return cls(
             client_id=data["client_id"],
             client_secret=data["client_secret"],
@@ -30,7 +29,7 @@ class Context:
     jira: Jira
 
     @classmethod
-    def from_args(cls, args: Namespace) -> Self:
+    def from_args(cls, args: Namespace) -> "Context":
         config = Config.from_dict(args.config)
         jira = Jira(
             oauth={
