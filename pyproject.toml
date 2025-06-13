@@ -16,6 +16,12 @@ dev = [
 [project.scripts]
 tap-jira = "tap_jira.cli:run"
 
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+tap_jira = ["schemas/*.json"]
+
 [tool.black]
 line-length = 79
 
