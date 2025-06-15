@@ -1,6 +1,8 @@
 import singer
 
-from tap_jira import discover
+from singer.catalog import Catalog
+
+from tap_jira import discover, sync
 from tap_jira.context import Context
 
 REQUIRED_CONFIG_KEYS = [
@@ -20,8 +22,13 @@ def run():
     args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
     context = Context.from_args(args)
 
-    if args.discover:
+    catalog: Catalog = args.catalog
+    if not catalog:
         catalog = discover.run(context)
+
+    if args.discover:
         catalog.dump()
 
         print()  # Add a newline
+    else:
+        sync.run(context, catalog)

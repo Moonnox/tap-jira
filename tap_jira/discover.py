@@ -6,9 +6,12 @@ from singer.catalog import Catalog, CatalogEntry, Schema
 import singer.metadata as Metadata
 
 from tap_jira.context import Context
+from tap_jira.streams.project.board import BoardStream
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_SCHEMA_NAME = "project"
+
+PROJECT_STREAMS = [BoardStream]
 
 
 def _load_schema(name: str) -> dict:
@@ -17,7 +20,7 @@ def _load_schema(name: str) -> dict:
     return json.loads(schema_path.read_text(encoding="utf-8"))
 
 
-def _build_metadata(schema: Schema):
+def _build_metadata(schema: Schema, default: dict | None = None):
     metadata = Metadata.new()
 
     if not schema.properties:
@@ -28,22 +31,28 @@ def _build_metadata(schema: Schema):
             metadata, ("properties", prop), "inclusion", "available"
         )
 
+    if default:
+        for key, value in default.items():
+            Metadata.write(metadata, (), key, value)
+
     return Metadata.to_list(metadata)
 
 
 def run(context: Context):
     catalog = Catalog([])
 
-    schema = Schema.from_dict(_load_schema(PROJECT_SCHEMA_NAME))
-    metadata = _build_metadata(schema)
-
     if not context.config.site_name:
         return catalog
 
+    schema = Schema.from_dict(_load_schema(PROJECT_SCHEMA_NAME))
+    metadata = _build_metadata(
+        schema,
+    )
     projects = chain.from_iterable(context.jira.projects())
+
     for project in projects:
-        stream_id = project["id"]
-        stream_name = f"{project['name']} ({project['key']})"
+        stream_id = f"project/{project['id']}"
+        stream_name = f"{project['name']} (Updated)"
 
         entry = CatalogEntry(
             tap_stream_id=stream_id,

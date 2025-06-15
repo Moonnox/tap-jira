@@ -24,10 +24,6 @@ class Config:
 
 
 class Context:
-    config: Config
-    config_path: str
-    jira: Jira
-
     @classmethod
     def from_args(cls, args: Namespace) -> "Context":
         config = Config.from_dict(args.config)

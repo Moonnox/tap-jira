@@ -52,6 +52,7 @@ class OauthStrategy:
             refresh_token=refresh_token,
             client_id=client_id,
             client_secret=client_secret,
+            config_path=data.get("config_path"),
         )
 
     def request(self, **kwargs):
@@ -134,6 +135,7 @@ class OauthStrategy:
 
             raise JiraRefreshCredentialsException(error_message) from e
         except Exception as e:
+            print(e)
             raise JiraRefreshCredentialsException(
                 f"Failed to refresh credentials: {e}"
             ) from e
@@ -177,17 +179,17 @@ class Jira:
         yield from JiraPaginator.default().pages(self._fetch_projects)
 
     def _fetch_projects(self, params: dict[str, Any]) -> dict[str, Any]:
-        return self._request(
-            url="/project/search",
+        return self.request(
+            url="/rest/api/3/project/search",
             method="GET",
             params=params,
         )
 
-    def _request(self, url: str, **kwargs):
+    def request(self, url: str, **kwargs):
         if not self._cloud_id:
             self._cloud_id = self._get_cloud_id_or_fail()
 
-        url = f"{BASE_URL}/ex/jira/{self._cloud_id}/rest/api/3{url}"
+        url = f"{BASE_URL}/ex/jira/{self._cloud_id}{url}"
         return self._strategy.request(
             url=url,
             **kwargs,
