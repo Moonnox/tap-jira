@@ -59,6 +59,7 @@ class OauthStrategy:
         headers = {
             "Authorization": f"Bearer {self._access_token}",
             "Accept": "application/json",
+            "Content-Type": "application/json",
         }
 
         try:
@@ -135,26 +136,28 @@ class OauthStrategy:
 
             raise JiraRefreshCredentialsException(error_message) from e
         except Exception as e:
-            print(e)
             raise JiraRefreshCredentialsException(
                 f"Failed to refresh credentials: {e}"
             ) from e
 
 
-class JiraPaginator:
-    def __init__(self):
+class JiraOffsetPaginator:
+    def __init__(self, items_key: str | None = None):
         self._offset = 0
+        self._items_key = items_key or "values"
 
     @classmethod
-    def default(cls):
-        return cls()
+    def default(cls, items_key: str | None = None) -> "JiraOffsetPaginator":
+        return cls(
+            items_key=items_key,
+        )
 
     def pages(self, callback):
         while True:
             params = {"startAt": self._offset}
 
             response = callback(params)
-            page = response.get("values", [])
+            page = response.get(self._items_key, [])
 
             yield page
 
@@ -162,6 +165,42 @@ class JiraPaginator:
                 break
 
             self._offset += len(page)
+
+
+class JiraCursorPaginator:
+    def __init__(
+        self, next_page: str | None = None, items_key: str | None = None
+    ):
+        self._next_page = next_page
+        self._items_key = items_key or "values"
+
+    @classmethod
+    def default(
+        cls, next_page: str | None = None, items_key: str | None = None
+    ) -> "JiraCursorPaginator":
+        return cls(
+            next_page=next_page,
+            items_key=items_key,
+        )
+
+    @property
+    def next_page(self) -> str | None:
+        return self._next_page
+
+    def pages(self, callback):
+        while True:
+            params = {"nextPageToken": self._next_page}
+
+            response = callback(params)
+            page = response.get(self._items_key, [])
+
+            yield page
+
+            next_page_token = response.get("nextPageToken", None)
+            if next_page_token is None or not page:
+                break
+
+            self._next_page = next_page_token
 
 
 class Jira:
@@ -175,8 +214,78 @@ class Jira:
         self._strategy = OauthStrategy.from_dict(oauth)
         self._site_name = site_name
 
+    def timezone(self):
+        result = self.request(url="/rest/api/2/myself", method="GET")
+
+        return result.get("timeZone")
+
     def projects(self):
-        yield from JiraPaginator.default().pages(self._fetch_projects)
+        yield from JiraOffsetPaginator.default().pages(self._fetch_projects)
+
+    def project_issues(
+        self,
+        project_id: str,
+        updated_after: str | None = None,
+        from_page: str | None = None,
+    ):
+        jql = (
+            f"project={project_id} "
+            f"AND updated >= '{updated_after}' "
+            "ORDER BY updated ASC"
+        )
+
+        paginator = JiraCursorPaginator.default(
+            next_page=from_page, items_key="issues"
+        )
+        pages = paginator.pages(
+            lambda params: self.request(
+                url="/rest/api/2/search/jql",
+                method="GET",
+                params={
+                    "expand": ["renderedFields"],
+                    "jql": jql,
+                    "fields": ["*all", "-worklog", "-operations"],
+                    "fieldsByKeys": True,
+                    **params,
+                },
+            )
+        )
+
+        for page in pages:
+            if not page:
+                break
+
+            yield page, paginator.next_page
+
+    def project_boards(self, project_id: str):
+        yield from JiraOffsetPaginator.default().pages(
+            lambda params: self.request(
+                url="/rest/agile/1.0/board",
+                method="GET",
+                params={
+                    "projectKeyOrId": project_id,
+                    **params,
+                },
+            )
+        )
+
+    def board_epics(self, board_id: str):
+        yield from JiraOffsetPaginator.default().pages(
+            lambda params: self.request(
+                url=f"/rest/agile/1.0/board/{board_id}/epic",
+                method="GET",
+                params=params,
+            )
+        )
+
+    def board_sprints(self, board_id: str):
+        yield from JiraOffsetPaginator.default().pages(
+            lambda params: self.request(
+                url=f"/rest/agile/1.0/board/{board_id}/sprint",
+                method="GET",
+                params=params,
+            )
+        )
 
     def _fetch_projects(self, params: dict[str, Any]) -> dict[str, Any]:
         return self.request(

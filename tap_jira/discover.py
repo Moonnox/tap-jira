@@ -6,12 +6,11 @@ from singer.catalog import Catalog, CatalogEntry, Schema
 import singer.metadata as Metadata
 
 from tap_jira.context import Context
-from tap_jira.streams.project.board import BoardStream
 
 BASE_DIR = Path(__file__).resolve().parent
-PROJECT_SCHEMA_NAME = "project"
 
-PROJECT_STREAMS = [BoardStream]
+USER_SCHEMA_NAME = "users"
+PROJECT_SCHEMA_NAME = "projects"
 
 
 def _load_schema(name: str) -> dict:
@@ -38,21 +37,16 @@ def _build_metadata(schema: Schema, default: dict | None = None):
     return Metadata.to_list(metadata)
 
 
-def run(context: Context):
+def run(context: Context) -> Catalog:
     catalog = Catalog([])
 
-    if not context.config.site_name:
-        return catalog
-
     schema = Schema.from_dict(_load_schema(PROJECT_SCHEMA_NAME))
-    metadata = _build_metadata(
-        schema,
-    )
+    metadata = _build_metadata(schema, {"group": "project"})
     projects = chain.from_iterable(context.jira.projects())
 
     for project in projects:
         stream_id = f"project/{project['id']}"
-        stream_name = f"{project['name']} (Updated)"
+        stream_name = f"{project['name']} ({project['key']})"
 
         entry = CatalogEntry(
             tap_stream_id=stream_id,

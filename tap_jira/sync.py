@@ -1,20 +1,13 @@
-import json
 from pathlib import Path
-import singer
 from singer.catalog import Catalog, CatalogEntry
 from singer import metadata as metadata_utils
 
 from tap_jira.context import Context
-from tap_jira.streams.groups import STREAM_GROUPS_BY_NAME
+from tap_jira.streams.base import BaseStream, StreamGroupType
+from tap_jira.streams.groups import STREAM_GROUPS_BY_TYPE
 
 
 BASE_DIR = Path(__file__).resolve().parent
-
-
-def _load_schema(name: str) -> dict:
-    schema_path = BASE_DIR / "schemas" / f"{name}.json"
-
-    return json.loads(schema_path.read_text(encoding="utf-8"))
 
 
 def _filter_selected_entries(catalog: Catalog) -> list[CatalogEntry]:
@@ -29,27 +22,35 @@ def _filter_selected_entries(catalog: Catalog) -> list[CatalogEntry]:
     return selected
 
 
-def _get_stream_from_entry(entry: CatalogEntry, context: Context):
+def _get_streams_for_entry(
+    entry: CatalogEntry, context: Context
+) -> list[BaseStream]:
     if not entry.tap_stream_id:
-        return None
+        return []
 
-    stream_group = STREAM_GROUPS_BY_NAME.get("project")
-    schema = _load_schema("boards")
+    metadata = metadata_utils.to_map(entry.metadata)
+    group = StreamGroupType(metadata_utils.get(metadata, (), "group"))
+
+    stream_group = STREAM_GROUPS_BY_TYPE.get(group)
     if stream_group:
-        return stream_group.build_stream(entry, schema, context)
+        return stream_group.build_streams(entry, context)
 
-    return None
+    return []
 
 
 def run(context: Context, catalog: Catalog):
     selected = _filter_selected_entries(catalog)
+    if not selected:
+        return
+
     for entry in selected:
-        stream = _get_stream_from_entry(entry, context)
+        streams = _get_streams_for_entry(entry, context)
+        context.set_selected_streams(streams)
 
-        if not stream:
-            continue
+        for stream in streams:
+            stream.output_schema()
 
-        schema = _load_schema("boards")
-        singer.write_schema(stream.stream_id, schema, ["id"])
+        for stream in streams:
+            stream.sync()
 
-        stream.sync()
+        context.set_selected_streams(None)

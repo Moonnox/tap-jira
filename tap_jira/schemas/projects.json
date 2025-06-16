@@ -1,0 +1,20 @@
+{
+  "type": ["null", "object"],
+  "properties": {
+    "boards": {
+      "type":  ["null", "string"]
+    },
+    "epics": {
+      "type":  ["null", "string"]
+    },
+    "issues": {
+      "type":  ["null", "string"]
+    },
+    "issue_comments": {
+      "type":  ["null", "string"]
+    },
+    "sprints": {
+      "type":  ["null", "string"]
+    }
+  }
+}

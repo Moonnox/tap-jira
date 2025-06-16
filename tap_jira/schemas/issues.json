@@ -4,6 +4,12 @@
     "object"
   ],
   "properties": {
+    "id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
     "self": {
       "type": [
         "null",
@@ -11,48 +17,58 @@
       ],
       "format": "uri"
     },
-    "id": {
+    "key": {
       "type": [
         "null",
         "string"
       ]
     },
-    "name": {
-      "type": [
-        "null",
-        "string"
-      ]
-    },
-    "type": {
-      "type": [
-        "null",
-        "string"
-      ]
-    },
-    "location": {
+    "fields": {
       "type": [
         "null",
         "object"
       ],
       "properties": {
-        "projectId": {
+        "created": {
           "type": [
             "null",
             "string"
-          ]
+          ],
+          "format": "date-time"
         },
-        "projectName": {
+        "updated": {
           "type": [
             "null",
             "string"
-          ]
-        },
-        "projectKey": {
+          ],
+          "format": "date-time"
+        }
+      },
+      "patternProperties": {
+        ".+": {}
+      }
+    },
+    "names": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "patternProperties": {
+        ".+": {
           "type": [
             "null",
             "string"
           ]
         }
+      }
+    },
+    "renderedFields": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "patternProperties": {
+        ".+": {}
       }
     }
   }

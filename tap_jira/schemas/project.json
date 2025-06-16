@@ -1,8 +1,0 @@
-{
-  "type": ["null", "object"],
-  "properties": {
-    "boards": {
-      "type":  ["null", "string"]
-    }
-  }
-}
