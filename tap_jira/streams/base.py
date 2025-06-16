@@ -36,7 +36,7 @@ class BaseStream(ABC):
 
     def output_schema(self):
         singer.write_schema(
-            self.stream_id, self.schema, key_properties=self.primary_keys
+            self.name, self.schema, key_properties=self.primary_keys
         )
 
     def write_page(self, page: list[dict]):
@@ -44,7 +44,7 @@ class BaseStream(ABC):
             with Transformer() as transformer:
                 item = transformer.transform(item, self.schema)
 
-            singer.write_record(self.stream_id, item)
+            singer.write_record(self.name, item)
 
 
 class ProjectStream(BaseStream):

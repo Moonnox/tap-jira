@@ -43,12 +43,18 @@ def run(context: Context, catalog: Catalog):
     if not selected:
         return
 
+    emitted_streams = set()
+
     for entry in selected:
         streams = _get_streams_for_entry(entry, context)
         context.set_selected_streams(streams)
 
         for stream in streams:
+            if stream.name in emitted_streams:
+                continue
+
             stream.output_schema()
+            emitted_streams.add(stream.name)
 
         for stream in streams:
             stream.sync()

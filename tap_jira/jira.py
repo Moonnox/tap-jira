@@ -4,8 +4,10 @@ from typing import Any
 import requests
 
 from tap_jira.exceptions import (
+    JiraBadRequestException,
     JiraForbiddenException,
     JiraRefreshCredentialsException,
+    raise_for_error,
 )
 
 BASE_URL = "https://api.atlassian.com"
@@ -56,6 +58,12 @@ class OauthStrategy:
         )
 
     def request(self, **kwargs):
+        return self._request_with_retry(**kwargs, _retry_count=0)
+
+    def _request_with_retry(self, **kwargs):
+        _retry_count = kwargs.pop("_retry_count", 0)
+        max_refresh_attempts = 1
+
         headers = {
             "Authorization": f"Bearer {self._access_token}",
             "Accept": "application/json",
@@ -64,14 +72,20 @@ class OauthStrategy:
 
         try:
             with self._session.request(headers=headers, **kwargs) as response:
-                response.raise_for_status()
+                if response.status_code == 401:
+                    if _retry_count >= max_refresh_attempts:
+                        raise_for_error(response)
 
+                    self._refresh_credentials()
+                    return self._request_with_retry(
+                        **kwargs, _retry_count=_retry_count + 1
+                    )
+
+                raise_for_error(response)
                 return response.json()
         except requests.RequestException as e:
-            if e.response is not None and e.response.status_code == 401:
-                self._refresh_credentials()
-
-                return self.request(**kwargs)
+            if e.response is not None:
+                raise_for_error(e.response)
 
             raise e
 
@@ -114,7 +128,7 @@ class OauthStrategy:
 
         try:
             with requests.post(url, data=result, timeout=10) as response:
-                response.raise_for_status()
+                raise_for_error(response)
                 result = response.json()
 
                 access_token = result.get("access_token")
@@ -279,13 +293,19 @@ class Jira:
         )
 
     def board_sprints(self, board_id: str):
-        yield from JiraOffsetPaginator.default().pages(
-            lambda params: self.request(
-                url=f"/rest/agile/1.0/board/{board_id}/sprint",
-                method="GET",
-                params=params,
+        try:
+            yield from JiraOffsetPaginator.default().pages(
+                lambda params: self.request(
+                    url=f"/rest/agile/1.0/board/{board_id}/sprint",
+                    method="GET",
+                    params=params,
+                )
             )
-        )
+        except JiraBadRequestException as e:
+            if "does not support sprints" in str(e):
+                # If the board does not support sprints, return an empty
+                # iterator
+                yield []
 
     def _fetch_projects(self, params: dict[str, Any]) -> dict[str, Any]:
         return self.request(
