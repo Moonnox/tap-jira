@@ -45,7 +45,7 @@ def run(context: Context) -> Catalog:
     projects = chain.from_iterable(context.jira.projects())
 
     for project in projects:
-        stream_id = f"project/{project['id']}"
+        stream_id = f"project_{project['id']}"
         stream_name = f"{project['name']} ({project['key']})"
 
         entry = CatalogEntry(

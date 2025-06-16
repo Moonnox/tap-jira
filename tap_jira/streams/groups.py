@@ -15,7 +15,7 @@ from tap_jira.streams.project.issue import IssueStream
 from tap_jira.streams.project.sprint import SprintStream
 from tap_jira.streams.project.issue_comment import IssueCommentStream
 
-PROJECT_STREAM_GROUP_PATTERN = r"^project/(?P<project_id>.+)$"
+PROJECT_STREAM_GROUP_PATTERN = r"^project_(?P<project_id>.+)$"
 
 
 def _get_selected_streams(entry: CatalogEntry) -> list[str]:
@@ -74,7 +74,7 @@ class ProjectStreamGroup(StreamGroup):
             if not stream_class:
                 continue
 
-            stream_id = f"{entry.tap_stream_id}/{stream_name}"
+            stream_id = f"{entry.tap_stream_id}_{stream_name}"
             streams.append(stream_class(project_id, stream_id, context))
 
         return streams
