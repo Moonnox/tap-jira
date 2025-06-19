@@ -40,20 +40,29 @@ def _build_metadata(schema: Schema, default: dict | None = None):
 def run(context: Context) -> Catalog:
     catalog = Catalog([])
 
-    schema = Schema.from_dict(_load_schema(PROJECT_SCHEMA_NAME))
-    metadata = _build_metadata(schema, {"group": "project"})
-    projects = chain.from_iterable(context.jira.projects())
+    try:
+        schema = Schema.from_dict(_load_schema(PROJECT_SCHEMA_NAME))
+        metadata = _build_metadata(schema, {"group": "project"})
+        projects = chain.from_iterable(context.jira.projects())
 
-    for project in projects:
-        stream_id = f"project_{project['id']}"
-        stream_name = f"{project['name']} ({project['key']})"
+        for project in projects:
+            stream_id = f"project_{project['id']}"
+            stream_name = f"{project['name']} ({project['key']})"
 
-        entry = CatalogEntry(
-            tap_stream_id=stream_id,
-            stream=stream_name,
-            schema=schema,
-            metadata=metadata,
+            entry = CatalogEntry(
+                tap_stream_id=stream_id,
+                stream=stream_name,
+                schema=schema,
+                metadata=metadata,
+            )
+            catalog.streams.append(entry)
+
+        return catalog
+    except Exception as e:  # pylint: disable=broad-except
+        context.logger.error(
+            "Failed to discover streams. Please check your configuration "
+            "and connection to Jira.",
+            exc_info=e,
         )
-        catalog.streams.append(entry)
 
-    return catalog
+        return catalog

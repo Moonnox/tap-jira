@@ -20,7 +20,7 @@ LOGGER = singer.get_logger()
 @singer.utils.handle_top_exception(LOGGER)
 def run():
     args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
-    context = Context.from_args(args)
+    context = Context.from_args(args, LOGGER)
 
     catalog: Catalog = args.catalog
     if not catalog:

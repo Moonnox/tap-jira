@@ -1,6 +1,7 @@
 from argparse import Namespace
 from dataclasses import dataclass
 from datetime import datetime
+from logging import Logger
 from typing import Any
 from singer.utils import strptime_to_utc, strftime
 
@@ -30,7 +31,7 @@ class Config:
 
 class Context:
     @classmethod
-    def from_args(cls, args: Namespace) -> "Context":
+    def from_args(cls, args: Namespace, logger: Logger) -> "Context":
         config = Config.from_dict(args.config)
         jira = Jira(
             oauth={
@@ -48,6 +49,7 @@ class Context:
             config=config,
             config_path=args.config_path,
             state=args.state,
+            logger=logger,
         )
 
     def __init__(
@@ -55,6 +57,7 @@ class Context:
         jira: Jira,
         config: Config,
         config_path: str,
+        logger: Logger,
         state: dict | None = None,
     ):
         self.jira = jira
@@ -62,6 +65,7 @@ class Context:
         self.config_path = config_path
         self.state = state or {}
         self.selected_streams = {}
+        self.logger = logger
 
     def get_bookmarks(self) -> dict:
         if "bookmarks" not in self.state:
