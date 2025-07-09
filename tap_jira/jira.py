@@ -272,16 +272,22 @@ class Jira:
             yield page, paginator.next_page
 
     def project_boards(self, project_id: str):
-        yield from JiraOffsetPaginator.default().pages(
-            lambda params: self.request(
-                url="/rest/agile/1.0/board",
-                method="GET",
-                params={
-                    "projectKeyOrId": project_id,
-                    **params,
-                },
+        try:
+            yield from JiraOffsetPaginator.default().pages(
+                lambda params: self.request(
+                    url="/rest/agile/1.0/board",
+                    method="GET",
+                    params={
+                        "projectKeyOrId": project_id,
+                        **params,
+                    },
+                )
             )
-        )
+        except JiraBadRequestException as e:
+            if "the browse project permission" in str(e):
+                # If the project does not have the browse permission, return
+                # an empty iterator
+                yield []
 
     def board_epics(self, board_id: str):
         yield from JiraOffsetPaginator.default().pages(
@@ -311,7 +317,8 @@ class Jira:
         return self.request(
             url="/rest/api/3/project/search",
             method="GET",
-            params=params,
+            # Only fetch projects that are accessible to the user to browse
+            params={"action": "browse", **params},
         )
 
     def request(self, url: str, **kwargs):
