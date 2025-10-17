@@ -14,6 +14,7 @@ from tap_jira.streams.project.epic import EpicStream
 from tap_jira.streams.project.issue import IssueStream
 from tap_jira.streams.project.sprint import SprintStream
 from tap_jira.streams.project.issue_comment import IssueCommentStream
+from tap_jira.streams.project.user import UserStream
 
 PROJECT_STREAM_GROUP_PATTERN = r"^project_(?P<project_id>.+)$"
 
@@ -49,6 +50,7 @@ class ProjectStreamGroup(StreamGroup):
             "sprints": SprintStream,
             "issues": IssueStream,
             "issue_comments": IssueCommentStream,
+            "users": UserStream,
         }
 
     def build_streams(

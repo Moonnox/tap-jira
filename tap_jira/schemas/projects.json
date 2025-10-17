@@ -15,6 +15,9 @@
     },
     "sprints": {
       "type":  ["null", "string"]
+    },
+    "users": {
+      "type":  ["null", "string"]
     }
   }
 }

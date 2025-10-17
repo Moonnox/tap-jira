@@ -171,11 +171,20 @@ class JiraOffsetPaginator:
             params = {"startAt": self._offset}
 
             response = callback(params)
-            page = response.get(self._items_key, [])
+            is_list_response = isinstance(response, list)
+
+            # If the response is a list, use it directly
+            if is_list_response:
+                page = response
+            else:
+                page = response.get(self._items_key, [])
 
             yield page
 
-            if response.get("nextPage") is None or not page:
+            if not page:
+                break
+
+            if not is_list_response and response.get("nextPage") is None:
                 break
 
             self._offset += len(page)
@@ -232,6 +241,15 @@ class Jira:
         result = self.request(url="/rest/api/2/myself", method="GET")
 
         return result.get("timeZone")
+
+    def users(self):
+        yield from JiraOffsetPaginator.default().pages(
+            lambda params: self.request(
+                url="/rest/api/3/users/search",
+                method="GET",
+                params=params,
+            )
+        )
 
     def projects(self):
         yield from JiraOffsetPaginator.default().pages(self._fetch_projects)
