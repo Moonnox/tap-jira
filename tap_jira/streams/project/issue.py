@@ -67,8 +67,17 @@ class IssueStream(ProjectBaseStream):
             if not comments:
                 continue
 
-            for comment in comments:
+            rendered_comments = (
+                issue.get("renderedFields", {})
+                .get("comment", {})
+                .get("comments", [])
+            )
+            if not rendered_comments:
+                continue
+
+            for idx, comment in enumerate(comments):
                 comment["issueId"] = issue["id"]
                 comment["issueKey"] = issue["key"]
+                comment["renderedBody"] = rendered_comments[idx].get("body")
 
             stream.write_page(comments)
