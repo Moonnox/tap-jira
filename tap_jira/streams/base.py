@@ -47,7 +47,7 @@ class BaseStream(ABC):
             singer.write_record(self.name, item)
 
 
-class ProjectStream(BaseStream):
+class ProjectBaseStream(BaseStream):
     def __init__(
         self,
         project_id: str,

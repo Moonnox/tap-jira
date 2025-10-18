@@ -1,7 +1,7 @@
-from tap_jira.streams.base import ProjectStream
+from tap_jira.streams.base import ProjectBaseStream
 
 
-class IssueCommentStream(ProjectStream):
+class IssueCommentStream(ProjectBaseStream):
     @property
     def name(self) -> str:
         return "issue_comments"

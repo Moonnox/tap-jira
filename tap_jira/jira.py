@@ -251,8 +251,10 @@ class Jira:
             )
         )
 
-    def projects(self):
-        yield from JiraOffsetPaginator.default().pages(self._fetch_projects)
+    def projects(self, ids: list[str] | None = None):
+        yield from JiraOffsetPaginator.default().pages(
+            lambda params: self._fetch_projects({**params, "id": ids})
+        )
 
     def project_issues(
         self,
@@ -305,30 +307,6 @@ class Jira:
             if "the browse project permission" in str(e):
                 # If the project does not have the browse permission, return
                 # an empty iterator
-                yield []
-
-    def board_epics(self, board_id: str):
-        yield from JiraOffsetPaginator.default().pages(
-            lambda params: self.request(
-                url=f"/rest/agile/1.0/board/{board_id}/epic",
-                method="GET",
-                params=params,
-            )
-        )
-
-    def board_sprints(self, board_id: str):
-        try:
-            yield from JiraOffsetPaginator.default().pages(
-                lambda params: self.request(
-                    url=f"/rest/agile/1.0/board/{board_id}/sprint",
-                    method="GET",
-                    params=params,
-                )
-            )
-        except JiraBadRequestException as e:
-            if "does not support sprints" in str(e):
-                # If the board does not support sprints, return an empty
-                # iterator
                 yield []
 
     def _fetch_projects(self, params: dict[str, Any]) -> dict[str, Any]:

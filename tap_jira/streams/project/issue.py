@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 import singer
 
-from tap_jira.streams.base import BaseStream, ProjectStream
+from tap_jira.streams.base import BaseStream, ProjectBaseStream
 
 
 def _format_datetime(dt: datetime, timezone: str) -> str:
@@ -12,7 +12,7 @@ def _format_datetime(dt: datetime, timezone: str) -> str:
     return local_dt.strftime("%Y-%m-%d %H:%M")
 
 
-class IssueStream(ProjectStream):
+class IssueStream(ProjectBaseStream):
     @property
     def name(self) -> str:
         return "issues"

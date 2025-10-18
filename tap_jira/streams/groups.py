@@ -4,15 +4,14 @@ import singer.metadata as metadata_utils
 
 from tap_jira.context import Context
 from tap_jira.streams.base import (
-    ProjectStream,
+    ProjectBaseStream,
     StreamGroup,
     BaseStream,
     StreamGroupType,
 )
 from tap_jira.streams.project.board import BoardStream
-from tap_jira.streams.project.epic import EpicStream
 from tap_jira.streams.project.issue import IssueStream
-from tap_jira.streams.project.sprint import SprintStream
+from tap_jira.streams.project.project import ProjectStream
 from tap_jira.streams.project.issue_comment import IssueCommentStream
 from tap_jira.streams.project.user import UserStream
 
@@ -43,11 +42,9 @@ class ProjectStreamGroup(StreamGroup):
         return StreamGroupType.PROJECT
 
     @property
-    def streams(self) -> dict[str, type[ProjectStream]]:
+    def streams(self) -> dict[str, type[ProjectBaseStream]]:
         return {
             "boards": BoardStream,
-            "epics": EpicStream,
-            "sprints": SprintStream,
             "issues": IssueStream,
             "issue_comments": IssueCommentStream,
             "users": UserStream,
@@ -69,7 +66,10 @@ class ProjectStreamGroup(StreamGroup):
 
         (project_id,) = match.groups()
 
-        streams = []
+        project_stream = ProjectStream(
+            project_id, entry.tap_stream_id, context
+        )
+        streams: list[BaseStream] = [project_stream]
 
         for stream_name in selected_streams:
             stream_class = self.streams.get(stream_name)

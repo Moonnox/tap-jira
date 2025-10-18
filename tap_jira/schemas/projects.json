@@ -1,23 +1,127 @@
 {
-  "type": ["null", "object"],
+  "type": [
+    "null",
+    "object"
+  ],
   "properties": {
-    "boards": {
-      "type":  ["null", "string"]
+    "self": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "uri"
     },
-    "epics": {
-      "type":  ["null", "string"]
+    "id": {
+      "type": [
+        "null",
+        "string"
+      ]
     },
-    "issues": {
-      "type":  ["null", "string"]
+    "key": {
+      "type": [
+        "null",
+        "string"
+      ]
     },
-    "issue_comments": {
-      "type":  ["null", "string"]
+    "description": {
+      "type": [
+        "null",
+        "string"
+      ]
     },
-    "sprints": {
-      "type":  ["null", "string"]
+    "url": {
+      "type": [
+        "null",
+        "string"
+      ]
     },
-    "users": {
-      "type":  ["null", "string"]
+    "email": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "assigneeType": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "enum": [
+        "PROJECT_LEAD",
+        "UNASSIGNED"
+      ]
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "avatarUrls": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "patternProperties": {
+        ".+": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
+    },
+    "projectKeys": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "string"
+        ]
+      }
+    },
+    "projectCategory": {
+      "title": "Project Category",
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "self": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "uri"
+        },
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "description": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
+    },
+    "projectTypeKey": {
+      "type": [
+        "null",
+        "string"
+      ]
     }
   }
 }
