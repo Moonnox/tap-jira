@@ -273,7 +273,7 @@ class Jira:
         )
         pages = paginator.pages(
             lambda params: self.request(
-                url="/rest/api/2/search/jql",
+                url="/rest/api/3/search/jql",
                 method="GET",
                 params={
                     "expand": ["renderedFields"],
