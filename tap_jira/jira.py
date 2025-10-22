@@ -308,6 +308,22 @@ class Jira:
                 # If the project does not have the browse permission, return
                 # an empty iterator
                 yield []
+            else:
+                raise e
+
+    def project_statuses(self, project_id: str):
+        try:
+            return self.request(
+                url=f"/rest/api/3/project/{project_id}/statuses",
+                method="GET",
+            )
+        except JiraBadRequestException as e:
+            if "the browse project permission" in str(e):
+                # If the project does not have the browse permission, return
+                # an empty iterator
+                return []
+            else:
+                raise e
 
     def _fetch_projects(self, params: dict[str, Any]) -> dict[str, Any]:
         return self.request(

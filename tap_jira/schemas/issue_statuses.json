@@ -1,0 +1,97 @@
+{
+  "type": [
+    "null",
+    "object"
+  ],
+  "properties": {
+    "id": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "description": "The ID of the status."
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "description": "The name of the status."
+    },
+    "description": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "description": "The description of the status."
+    },
+    "self": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "uri",
+      "description": "The URL of the status."
+    },
+    "iconUrl": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "format": "uri",
+      "description": "The URL of the icon used to represent the status."
+    },
+    "statusCategory": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "description": "The category assigned to the status.",
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "integer"
+          ],
+          "description": "The ID of the status category."
+        },
+        "key": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "description": "The key of the status category."
+        },
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "description": "The name of the status category."
+        },
+        "colorName": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "description": "The name of the color used to represent the status category."
+        },
+        "self": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "format": "uri",
+          "description": "The URL of the status category."
+        }
+      }
+    },
+    "projectId": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "description": "The ID of the project this status belongs to."
+    }
+  }
+}

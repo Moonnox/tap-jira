@@ -10,6 +10,9 @@
     "issue_comments": {
       "type":  ["null", "string"]
     },
+    "issue_statuses": {
+      "type":  ["null", "string"]
+    },
     "users": {
       "type":  ["null", "string"]
     }

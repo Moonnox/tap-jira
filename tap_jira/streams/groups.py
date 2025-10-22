@@ -14,6 +14,7 @@ from tap_jira.streams.project.issue import IssueStream
 from tap_jira.streams.project.project import ProjectStream
 from tap_jira.streams.project.issue_comment import IssueCommentStream
 from tap_jira.streams.project.user import UserStream
+from tap_jira.streams.project.issue_status import IssueStatusStream
 
 PROJECT_STREAM_GROUP_PATTERN = r"^project_(?P<project_id>.+)$"
 
@@ -47,6 +48,7 @@ class ProjectStreamGroup(StreamGroup):
             "boards": BoardStream,
             "issues": IssueStream,
             "issue_comments": IssueCommentStream,
+            "issue_statuses": IssueStatusStream,
             "users": UserStream,
         }
 
