@@ -102,8 +102,11 @@
     "body": {
       "type": [
         "null",
-        "string"
-      ]
+        "object"
+      ],
+      "patternProperties": {
+        ".+": {}
+      }
     },
     "renderedBody": {
       "type": [
