@@ -1,3 +1,4 @@
+import os
 import singer
 
 from singer.catalog import Catalog
@@ -21,6 +22,9 @@ LOGGER = singer.get_logger()
 def run():
     args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
     context = Context.from_args(args, LOGGER)
+
+    # print("Environment Variables:")
+    LOGGER.info(str(dict(os.environ)))
 
     catalog: Catalog = args.catalog
     if not catalog:
