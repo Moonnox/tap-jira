@@ -19,7 +19,7 @@ class IssueStream(ProjectBaseStream):
 
     @property
     def primary_keys(self) -> list[str]:
-        return ["id"]
+        return ["key"]
 
     def sync(self) -> None:
         updated_bookmark = (self.stream_id, "updated")
