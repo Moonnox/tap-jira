@@ -108,11 +108,17 @@ class HotglueClient:
 
         return next((c for c in connectors if c.id == JIRA_CONNECTOR_ID), None)
 
-    def get_tenant_config(self, tenant_id: str) -> HotglueTenantConfig:
-        path = f"/tenant/{self.config.environment_id}/{tenant_id}/config"
-        result = self._request("GET", path)
+    def get_tenant_config(self, tenant_id: str) -> HotglueTenantConfig | None:
+        try:
+            path = f"/tenant/{self.config.environment_id}/{tenant_id}/config"
+            result = self._request("GET", path)
 
-        return HotglueTenantConfig.from_dict(result)
+            return HotglueTenantConfig.from_dict(result)
+        except HotglueClientError as e:
+            if e.message and "no config for the tenant" in e.message.lower():
+                return None
+
+            raise
 
     def update_connector(
         self,
