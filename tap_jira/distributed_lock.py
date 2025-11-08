@@ -1,10 +1,10 @@
 import os
-
-from contextlib import contextmanager
+import logging
 from logging import Logger
-
-from pottery import Redlock
+from contextlib import contextmanager
 from redis import Redis
+
+logging.getLogger("pottery").setLevel(logging.WARNING)
 
 
 class DistributedLockError(Exception):
@@ -49,6 +49,8 @@ class DistributedLock:
         Raises:
             DistributedLockError: If the lock could not be acquired.
         """
+
+        from pottery import Redlock
 
         lock = Redlock(
             key=resource,

@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-import json
 from logging import Logger
 import os
 
@@ -43,12 +42,7 @@ class JiraCredentialsManager:
         "site_name",
     ]
 
-    def __init__(
-        self,
-        logger: Logger,
-        config_path: str | None = None,
-        timeout: int = 30,
-    ):
+    def __init__(self, logger: Logger, timeout: int = 30):
         self.tenant_id = os.environ["TENANT"]
         self.hotglue = HotglueClient.from_env()
         self.dlock = DistributedLock.from_env(logger)
@@ -58,7 +52,6 @@ class JiraCredentialsManager:
         self._credentials: JiraOAuthCredentials | None = None
         self._cloud_id: str | None = None
         self._integration_id: str | None = None
-        self._config_path = config_path
 
     def request_credentials(self, refresh: bool = False) -> JiraCredentials:
         if not refresh and (self._credentials and self._cloud_id):
@@ -247,22 +240,6 @@ class JiraCredentialsManager:
             )
 
         return jira_connector
-
-    def _sync_local_config(self, credentials: JiraOAuthCredentials):
-        if not self._config_path:
-            return
-
-        with open(self._config_path, "r", encoding="utf-8") as config_file:
-            config = json.load(config_file)
-            config.update(
-                {
-                    "access_token": credentials.access_token,
-                    "refresh_token": credentials.refresh_token,
-                }
-            )
-
-        with open(self._config_path, "w", encoding="utf-8") as config_file:
-            json.dump(config, config_file, indent=4)
 
     def _fetch_integration_id(self) -> str:
         tenant_config = self.hotglue.get_tenant_config(self.tenant_id)

@@ -11,23 +11,11 @@ from tap_jira.jira import Jira
 
 @dataclass
 class Config:
-    client_id: str
-    client_secret: str
-    access_token: str
-    refresh_token: str
-    site_name: str
     start_date: str
 
     @classmethod
     def from_dict(cls, data: dict) -> "Config":
-        return cls(
-            client_id=data["client_id"],
-            client_secret=data["client_secret"],
-            access_token=data["access_token"],
-            refresh_token=data["refresh_token"],
-            site_name=data["site_name"],
-            start_date=data["start_date"],
-        )
+        return cls(start_date=data["start_date"])
 
 
 class Context:
@@ -35,9 +23,7 @@ class Context:
     def from_args(cls, args: Namespace, logger: Logger) -> "Context":
         config = Config.from_dict(args.config)
 
-        credentials_manager = JiraCredentialsManager(
-            logger, config_path=args.config_path
-        )
+        credentials_manager = JiraCredentialsManager(logger)
         jira = Jira(credentials_manager)
 
         return cls(jira=jira, config=config, state=args.state, logger=logger)
