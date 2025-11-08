@@ -1,3 +1,4 @@
+from contextlib import nullcontext
 from dataclasses import dataclass
 from logging import Logger
 import os
@@ -52,6 +53,7 @@ class JiraCredentialsManager:
         self._credentials: JiraOAuthCredentials | None = None
         self._cloud_id: str | None = None
         self._integration_id: str | None = None
+        self._integration_id_fetched: bool = False
 
     def request_credentials(self, refresh: bool = False) -> JiraCredentials:
         if not refresh and (self._credentials and self._cloud_id):
@@ -61,7 +63,7 @@ class JiraCredentialsManager:
                 cloud_id=self._cloud_id,
             )
 
-        with self.dlock.acquire(self._lock_key()):
+        with self._lock_context():
             try:
                 current_creds, cloud_id = self._fetch_credentials()
 
@@ -241,17 +243,26 @@ class JiraCredentialsManager:
 
         return jira_connector
 
-    def _fetch_integration_id(self) -> str:
+    def _fetch_integration_id(self) -> str | None:
         tenant_config = self.hotglue.get_tenant_config(self.tenant_id)
         if not tenant_config or not tenant_config.integration_id:
-            raise JiraCredentialsManagerError(
-                "Integration ID not found in tenant configuration"
-            )
+            return None
 
         return tenant_config.integration_id
 
-    def _lock_key(self) -> str:
-        if not self._integration_id:
+    def _lock_context(self):
+        lock_key = self._lock_key()
+        if not lock_key:
+            return nullcontext()
+
+        return self.dlock.acquire(lock_key)
+
+    def _lock_key(self) -> str | None:
+        if not self._integration_id_fetched:
             self._integration_id = self._fetch_integration_id()
+            self._integration_id_fetched = True
+
+        if not self._integration_id:
+            return None
 
         return f"integrations:{self._integration_id}:credentials"
