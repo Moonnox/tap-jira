@@ -5,6 +5,7 @@ from logging import Logger
 from typing import Any
 from singer.utils import strptime_to_utc, strftime
 
+from tap_jira.credentials_manager import JiraCredentialsManager
 from tap_jira.jira import Jira
 
 
@@ -33,36 +34,23 @@ class Context:
     @classmethod
     def from_args(cls, args: Namespace, logger: Logger) -> "Context":
         config = Config.from_dict(args.config)
-        jira = Jira(
-            oauth={
-                "access_token": config.access_token,
-                "refresh_token": config.refresh_token,
-                "client_id": config.client_id,
-                "client_secret": config.client_secret,
-                "config_path": args.config_path,
-            },
-            site_name=config.site_name,
-        )
 
-        return cls(
-            jira=jira,
-            config=config,
-            config_path=args.config_path,
-            state=args.state,
-            logger=logger,
+        credentials_manager = JiraCredentialsManager(
+            logger, config_path=args.config_path
         )
+        jira = Jira(credentials_manager)
+
+        return cls(jira=jira, config=config, state=args.state, logger=logger)
 
     def __init__(
         self,
         jira: Jira,
         config: Config,
-        config_path: str,
         logger: Logger,
         state: dict | None = None,
     ):
         self.jira = jira
         self.config = config
-        self.config_path = config_path
         self.state = state or {}
         self.selected_streams = {}
         self.logger = logger

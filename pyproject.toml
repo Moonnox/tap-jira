@@ -4,7 +4,9 @@ version = "0.1.0"
 requires-python = ">=3.10, <4.0"
 dependencies = [
   "singer-python==6.1.1",
-  "requests~=2.32.4"
+  "requests~=2.32.4",
+  "tenacity==9.1.2",
+  "pottery==3.0.1"
 ]
 
 [tool.optional-dependencies]
