@@ -8,9 +8,7 @@ import singer.metadata as Metadata
 from tap_jira.context import Context
 
 BASE_DIR = Path(__file__).resolve().parent
-
-USER_SCHEMA_NAME = "users"
-PROJECT_SCHEMA_NAME = "projects"
+DISCOVERY_SCHEMA_NAME = "_discovery"
 
 
 def _load_schema(name: str) -> dict:
@@ -41,7 +39,7 @@ def run(context: Context) -> Catalog:
     catalog = Catalog([])
 
     try:
-        schema = Schema.from_dict(_load_schema(PROJECT_SCHEMA_NAME))
+        schema = Schema.from_dict(_load_schema(DISCOVERY_SCHEMA_NAME))
         metadata = _build_metadata(schema, {"group": "project"})
         projects = chain.from_iterable(context.jira.projects())
 

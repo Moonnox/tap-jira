@@ -3,6 +3,27 @@ from enum import Enum
 from requests import Response
 
 
+class HotglueClientError(Exception):
+    status: int
+    message: str | None
+
+    def __init__(self, message: str, status: int):
+        self.message = message
+        self.status = status
+
+
+class JiraCredentialsManagerError(Exception):
+    """Base exception for Jira credentials manager errors."""
+
+
+class CredentialsExpiredError(JiraCredentialsManagerError):
+    """Exception raised when credentials refresh is required."""
+
+
+class CredentialsRefreshFailedError(JiraCredentialsManagerError):
+    """Exception raised when credentials refresh fails."""
+
+
 class JiraClientException(Exception):
     def __init__(self, message: str, response: Response | None = None):
         super().__init__(message)
@@ -105,7 +126,10 @@ ERROR_MAPPINGS = {
     ),
     JiraErrorCode.RATE_LIMIT: ErrorMapping(
         JiraRateLimitException,
-        "The API rate limit for your organisation/application pairing has been exceeded.",
+        (
+            "The API rate limit for your organisation/application pairing "
+            "has been exceeded."
+        ),
     ),
     JiraErrorCode.SUB_REQUEST_FAILED: ErrorMapping(
         JiraSubRequestFailedException,
@@ -113,11 +137,17 @@ ERROR_MAPPINGS = {
     ),
     JiraErrorCode.INTERNAL_SERVER_ERROR: ErrorMapping(
         JiraInternalServerException,
-        "The server encountered an unexpected condition which prevented it from fulfilling the request.",
+        (
+            "The server encountered an unexpected condition which prevented "
+            "it from fulfilling the request."
+        ),
     ),
     JiraErrorCode.NOT_IMPLEMENTED: ErrorMapping(
         JiraNotImplementedException,
-        "The server does not support the functionality required to fulfill the request.",
+        (
+            "The server does not support the functionality required to "
+            "fulfill the request."
+        ),
     ),
     JiraErrorCode.BAD_GATEWAY: ErrorMapping(
         JiraBadGatewayException, "Server received an invalid response."

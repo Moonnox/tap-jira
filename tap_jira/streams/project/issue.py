@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 import singer
 
-from tap_jira.streams.base import BaseStream, ProjectStream
+from tap_jira.streams.base import BaseStream, ProjectBaseStream
 
 
 def _format_datetime(dt: datetime, timezone: str) -> str:
@@ -12,14 +12,14 @@ def _format_datetime(dt: datetime, timezone: str) -> str:
     return local_dt.strftime("%Y-%m-%d %H:%M")
 
 
-class IssueStream(ProjectStream):
+class IssueStream(ProjectBaseStream):
     @property
     def name(self) -> str:
         return "issues"
 
     @property
     def primary_keys(self) -> list[str]:
-        return ["id"]
+        return ["key"]
 
     def sync(self) -> None:
         updated_bookmark = (self.stream_id, "updated")
@@ -67,8 +67,17 @@ class IssueStream(ProjectStream):
             if not comments:
                 continue
 
-            for comment in comments:
+            rendered_comments = (
+                issue.get("renderedFields", {})
+                .get("comment", {})
+                .get("comments", [])
+            )
+            if not rendered_comments:
+                continue
+
+            for idx, comment in enumerate(comments):
                 comment["issueId"] = issue["id"]
                 comment["issueKey"] = issue["key"]
+                comment["renderedBody"] = rendered_comments[idx].get("body")
 
             stream.write_page(comments)
