@@ -12,8 +12,4 @@ class UserStream(ProjectBaseStream):
 
     def sync(self) -> None:
         for page in self.context.jira.users():
-            users = [
-                user for user in page if user.get("accountType") == "atlassian"
-            ]
-
-            self.write_page(users)
+            self.write_page(page)
