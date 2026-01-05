@@ -30,7 +30,6 @@ class UserStream(ProjectBaseStream):
 
         for page in self.context.jira.assignable_users(project_key):
             for user in page:
-                print(user)
                 user_ids.add(user["accountId"])
 
         return user_ids
