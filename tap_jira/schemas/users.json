@@ -85,6 +85,15 @@
         "null",
         "string"
       ]
+    },
+    "permissions": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": "string"
+      }
     }
   }
 }
