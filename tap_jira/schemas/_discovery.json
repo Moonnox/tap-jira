@@ -1,20 +1,7 @@
 {
-  "type": ["null", "object"],
-  "properties": {
-    "boards": {
-      "type":  ["null", "string"]
-    },
-    "issues": {
-      "type":  ["null", "string"]
-    },
-    "issue_comments": {
-      "type":  ["null", "string"]
-    },
-    "issue_statuses": {
-      "type":  ["null", "string"]
-    },
-    "users": {
-      "type":  ["null", "string"]
-    }
-  }
+  "type": [
+    "null",
+    "object"
+  ],
+  "properties": {}
 }
