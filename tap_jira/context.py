@@ -38,7 +38,6 @@ class Context:
         self.jira = jira
         self.config = config
         self.state = state or {}
-        self.selected_streams = {}
         self.logger = logger
 
     def get_bookmarks(self) -> dict:
@@ -69,9 +68,3 @@ class Context:
 
         bookmark = self.get_bookmark(path[:-1])
         bookmark[path[-1]] = value
-
-    def set_selected_streams(self, streams: list[Any] | None = None) -> None:
-        if streams is None:
-            streams = []
-
-        self.selected_streams = {stream.name: stream for stream in streams}

@@ -119,13 +119,13 @@ class Jira:
             )
         )
 
-    def assignable_users(self, project_id: str):
+    def assignable_users(self, project_keys: list[str]):
         yield from JiraOffsetPaginator.default().pages(
             lambda params: self.request(
-                url="/rest/api/3/user/assignable/search",
+                url="/rest/api/3/user/assignable/multiProjectSearch",
                 method="GET",
                 params={
-                    "project": project_id,
+                    "projectKeys": ",".join(project_keys),
                     **params,
                 },
             )
