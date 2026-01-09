@@ -50,7 +50,7 @@ class ProjectStreamGroup(StreamGroup):
             project_streams: ProjectStreams = {}
 
             for stream_name, stream_class in self.streams.items():
-                stream_id = f"{project_id}_{stream_name}"
+                stream_id = f"project_{project_id}_{stream_name}"
                 stream = stream_class(
                     project_id, stream_id, context, project_streams
                 )
