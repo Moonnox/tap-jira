@@ -2,9 +2,7 @@ from tap_jira.streams.base import CommonBaseStream
 
 
 class ProjectStream(CommonBaseStream):
-    @property
-    def name(self) -> str:
-        return "projects"
+    name = "projects"
 
     @property
     def primary_keys(self) -> list[str]:

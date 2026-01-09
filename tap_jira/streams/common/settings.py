@@ -2,9 +2,7 @@ from tap_jira.streams.base import CommonBaseStream
 
 
 class SettingsStream(CommonBaseStream):
-    @property
-    def name(self) -> str:
-        return "settings"
+    name = "settings"
 
     @property
     def primary_keys(self) -> list[str]:

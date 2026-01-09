@@ -14,9 +14,7 @@ def _format_datetime(dt: datetime, timezone: str) -> str:
 
 
 class IssueStream(ProjectBaseStream):
-    @property
-    def name(self) -> str:
-        return "issues"
+    name = "issues"
 
     @property
     def primary_keys(self) -> list[str]:

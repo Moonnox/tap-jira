@@ -8,10 +8,7 @@ from tap_jira.context import Context
 
 
 class BaseStream(ABC):
-    @property
-    @abstractmethod
-    def name(self) -> str:
-        pass
+    name: str
 
     @property
     @abstractmethod
@@ -25,7 +22,6 @@ class BaseStream(ABC):
     ):
         self.stream_id = stream_id
         self.context = context
-
         self.schema = utils.load_schema(self.name)
 
     @abstractmethod

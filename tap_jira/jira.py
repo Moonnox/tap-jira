@@ -208,6 +208,21 @@ class Jira:
             else:
                 raise e
 
+    def sprints(self, board_id: str):
+        try:
+            yield from JiraOffsetPaginator.default().pages(
+                lambda params: self.request(
+                    url=f"/rest/agile/1.0/board/{board_id}/sprint",
+                    method="GET",
+                    params=params,
+                )
+            )
+        except JiraBadRequestException as e:
+            if "does not support sprints" in str(e):
+                # If the board does not support sprints, return an empty
+                # iterator
+                yield []
+
     def _fetch_projects(self, params: dict[str, Any]) -> dict[str, Any]:
         return self.request(
             url="/rest/api/3/project/search",
