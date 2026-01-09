@@ -7,6 +7,7 @@ from tap_jira.streams.base import (
     BaseStream,
 )
 from tap_jira.streams.common.project import ProjectStream
+from tap_jira.streams.common.settings import SettingsStream
 from tap_jira.streams.common.user import UserStream
 from tap_jira.streams.project.board import BoardStream
 from tap_jira.streams.project.issue import IssueStream
@@ -17,7 +18,11 @@ from tap_jira.streams.project.issue_status import IssueStatusStream
 class CommonStreamGroup(StreamGroup):
     @property
     def streams(self) -> dict[str, type[CommonBaseStream]]:
-        return {"projects": ProjectStream, "users": UserStream}
+        return {
+            "projects": ProjectStream,
+            "users": UserStream,
+            "settings": SettingsStream,
+        }
 
     def build_streams(
         self, project_ids: list[str], context: Context

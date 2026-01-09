@@ -110,6 +110,9 @@ class Jira:
 
         return result.get("timeZone")
 
+    def fields(self):
+        return self.request(url="/rest/api/3/field", method="GET")
+
     def users(self):
         yield from JiraOffsetPaginator.default().pages(
             lambda params: self.request(

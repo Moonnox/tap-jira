@@ -1,0 +1,13 @@
+{
+  "type": [
+    "null",
+    "object"
+  ],
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "The key of the setting."
+    },
+    "value": {}
+  }
+}
