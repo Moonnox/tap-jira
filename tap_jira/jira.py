@@ -110,6 +110,9 @@ class Jira:
 
         return result.get("timeZone")
 
+    def fields(self):
+        return self.request(url="/rest/api/3/field", method="GET")
+
     def users(self):
         yield from JiraOffsetPaginator.default().pages(
             lambda params: self.request(
@@ -119,13 +122,13 @@ class Jira:
             )
         )
 
-    def assignable_users(self, project_id: str):
+    def assignable_users(self, project_keys: list[str]):
         yield from JiraOffsetPaginator.default().pages(
             lambda params: self.request(
-                url="/rest/api/3/user/assignable/search",
+                url="/rest/api/3/user/assignable/multiProjectSearch",
                 method="GET",
                 params={
-                    "project": project_id,
+                    "projectKeys": ",".join(project_keys),
                     **params,
                 },
             )
@@ -204,6 +207,21 @@ class Jira:
                 return []
             else:
                 raise e
+
+    def sprints(self, board_id: str):
+        try:
+            yield from JiraOffsetPaginator.default().pages(
+                lambda params: self.request(
+                    url=f"/rest/agile/1.0/board/{board_id}/sprint",
+                    method="GET",
+                    params=params,
+                )
+            )
+        except JiraBadRequestException as e:
+            if "does not support sprints" in str(e):
+                # If the board does not support sprints, return an empty
+                # iterator
+                yield []
 
     def _fetch_projects(self, params: dict[str, Any]) -> dict[str, Any]:
         return self.request(

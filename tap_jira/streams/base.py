@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
-from enum import Enum
 
 import singer
-from singer.catalog import CatalogEntry
 from singer.transform import Transformer
 
 from tap_jira import utils
@@ -10,10 +8,7 @@ from tap_jira.context import Context
 
 
 class BaseStream(ABC):
-    @property
-    @abstractmethod
-    def name(self) -> str:
-        pass
+    name: str
 
     @property
     @abstractmethod
@@ -27,7 +22,6 @@ class BaseStream(ABC):
     ):
         self.stream_id = stream_id
         self.context = context
-
         self.schema = utils.load_schema(self.name)
 
     @abstractmethod
@@ -53,28 +47,30 @@ class ProjectBaseStream(BaseStream):
         project_id: str,
         stream_id: str,
         context: Context,
+        streams: "ProjectStreams",
     ):
         super().__init__(stream_id, context)
         self.project_id = project_id
+        self.streams = streams
 
 
-class StreamGroupType(Enum):
-    PROJECT = "project"
+class CommonBaseStream(BaseStream):
+    def __init__(
+        self,
+        project_ids: list[str],
+        stream_id: str,
+        context: Context,
+    ):
+        super().__init__(stream_id, context)
+        self.project_ids = project_ids
 
 
 class StreamGroup(ABC):
-    @property
-    @abstractmethod
-    def group_type(self) -> StreamGroupType:
-        pass
-
-    @property
-    @abstractmethod
-    def streams(self) -> dict[str, type]:
-        pass
-
     @abstractmethod
     def build_streams(
-        self, entry: CatalogEntry, context: Context
+        self, project_ids: list[str], context: Context
     ) -> list[BaseStream]:
         pass
+
+
+ProjectStreams = dict[type[ProjectBaseStream], ProjectBaseStream]

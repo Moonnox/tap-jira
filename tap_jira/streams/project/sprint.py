@@ -1,8 +1,8 @@
 from tap_jira.streams.base import ProjectBaseStream
 
 
-class IssueCommentStream(ProjectBaseStream):
-    name = "issue_comments"
+class SprintStream(ProjectBaseStream):
+    name = "sprints"
 
     @property
     def primary_keys(self) -> list[str]:
