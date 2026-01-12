@@ -21,4 +21,7 @@ class BoardStream(ProjectBaseStream):
                 board_id = board["id"]
 
                 for sprint_page in self.context.jira.sprints(board_id):
+                    for sprint in sprint_page:
+                        sprint["projectId"] = self.project_id
+
                     sprints_stream.write_page(sprint_page)

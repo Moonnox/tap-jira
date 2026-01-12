@@ -68,6 +68,13 @@
                 "null",
                 "string"
             ]
+        },
+        "projectId": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "description": "The ID of the project this sprint belongs to."
         }
     }
 }
