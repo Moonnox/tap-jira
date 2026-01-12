@@ -4,8 +4,10 @@
     "object"
   ],
   "properties": {
-    "key": {
-      "type": "string"
+    "site": {
+      "type": [
+        "string"
+      ]
     },
     "fields": {
       "type": [

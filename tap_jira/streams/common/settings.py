@@ -6,7 +6,7 @@ class SettingsStream(CommonBaseStream):
 
     @property
     def primary_keys(self) -> list[str]:
-        return ["key"]
+        return ["site"]
 
     def sync(self) -> None:
         fields = self._get_fields()
@@ -14,10 +14,10 @@ class SettingsStream(CommonBaseStream):
         self.write_page(
             [
                 {
-                    "key": "BASE",
                     "fields": fields,
                     "features": self._get_features(fields),
                     "timezone": self.context.jira.timezone(),
+                    "site": self.context.config.site_name,
                 }
             ]
         )

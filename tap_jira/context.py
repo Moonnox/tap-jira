@@ -12,10 +12,11 @@ from tap_jira.jira import Jira
 @dataclass
 class Config:
     start_date: str
+    site_name: str
 
     @classmethod
     def from_dict(cls, data: dict) -> "Config":
-        return cls(start_date=data["start_date"])
+        return cls(start_date=data["start_date"], site_name=data["site_name"])
 
 
 class Context:
