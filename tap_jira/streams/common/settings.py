@@ -9,16 +9,16 @@ class SettingsStream(CommonBaseStream):
         return ["key"]
 
     def sync(self) -> None:
+        fields = self._get_fields()
+
         self.write_page(
             [
                 {
-                    "key": "field_ids",
-                    "value": self._get_fields(),
-                },
-                {
-                    "key": "timezone",
-                    "value": self.context.jira.timezone(),
-                },
+                    "key": "BASE",
+                    "fields": fields,
+                    "features": self._get_features(fields),
+                    "timezone": self.context.jira.timezone(),
+                }
             ]
         )
 
@@ -35,3 +35,11 @@ class SettingsStream(CommonBaseStream):
             field.get("name") == "Sprint"
             and field.get("schema", {}).get("type") == "array"
         )
+
+    def _get_features(self, fields: dict) -> list[str]:
+        features = []
+
+        if fields.get("sprint"):
+            features.append("SPRINTS_SUPPORTED")
+
+        return features

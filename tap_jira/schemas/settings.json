@@ -5,9 +5,36 @@
   ],
   "properties": {
     "key": {
-      "type": "string",
-      "description": "The key of the setting."
+      "type": "string"
     },
-    "value": {}
+    "fields": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "patternProperties": {
+        ".+": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
+    },
+    "timezone": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "features": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": "string"
+      }
+    }
   }
 }
