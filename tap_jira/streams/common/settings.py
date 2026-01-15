@@ -9,14 +9,20 @@ class SettingsStream(CommonBaseStream):
         return ["site"]
 
     def sync(self) -> None:
+        account = self.context.jira.myself()
         fields = self._get_fields()
 
         self.write_page(
             [
                 {
+                    "account": {
+                        "id": account.get("accountId"),
+                        "displayName": account.get("displayName"),
+                        "active": account.get("active"),
+                        "timeZone": account.get("timeZone"),
+                    },
                     "fields": fields,
                     "features": self._get_features(fields),
-                    "timezone": self.context.jira.timezone(),
                     "site": self.context.config.site_name,
                 }
             ]

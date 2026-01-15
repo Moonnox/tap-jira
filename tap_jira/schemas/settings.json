@@ -4,6 +4,32 @@
     "object"
   ],
   "properties": {
+    "account": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "active": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "timeZone": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
+    },
     "site": {
       "type": [
         "string"
@@ -22,12 +48,6 @@
           ]
         }
       }
-    },
-    "timezone": {
-      "type": [
-        "null",
-        "string"
-      ]
     },
     "features": {
       "type": [

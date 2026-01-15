@@ -105,6 +105,9 @@ class Jira:
 
         self._credentials: JiraCredentials | None = None
 
+    def myself(self):
+        return self.request(url="/rest/api/2/myself", method="GET")
+
     def timezone(self):
         result = self.request(url="/rest/api/2/myself", method="GET")
 
