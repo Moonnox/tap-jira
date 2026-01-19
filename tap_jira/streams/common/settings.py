@@ -9,24 +9,33 @@ class SettingsStream(CommonBaseStream):
         return ["site"]
 
     def sync(self) -> None:
-        account = self.context.jira.myself()
         fields = self._get_fields()
 
         self.write_page(
             [
                 {
-                    "account": {
-                        "id": account.get("accountId"),
-                        "displayName": account.get("displayName"),
-                        "active": account.get("active"),
-                        "timeZone": account.get("timeZone"),
-                    },
+                    "account": self._get_account(),
                     "fields": fields,
                     "features": self._get_features(fields),
                     "site": self.context.config.site_name,
                 }
             ]
         )
+
+    def _get_account(self):
+        account = self.context.jira.myself()
+
+        return {
+            "id": account["accountId"],
+            "active": account.get("active"),
+            "name": account.get("displayName"),
+            "email_address": account.get("emailAddress"),
+            "avatar": self._get_account_avatar(account),
+            "tz": account.get("timeZone"),
+        }
+
+    def _get_account_avatar(self, account: dict) -> str | None:
+        return account.get("avatarUrls", {}).get("48x48")
 
     def _get_fields(self):
         fields = self.context.jira.fields()

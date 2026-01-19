@@ -10,19 +10,31 @@
         "id": {
           "type": "string"
         },
-        "displayName": {
-          "type": [
-            "null",
-            "string"
-          ]
-        },
         "active": {
           "type": [
             "null",
             "boolean"
           ]
         },
-        "timeZone": {
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "email_address": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "avatar": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "tz": {
           "type": [
             "null",
             "string"
