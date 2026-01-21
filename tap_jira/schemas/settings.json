@@ -69,6 +69,28 @@
       "items": {
         "type": "string"
       }
+    },
+    "projects": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "patternProperties": {
+        ".+": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "boards": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

@@ -1,3 +1,4 @@
+from typing import Any
 from tap_jira.streams.base import CommonBaseStream
 
 
@@ -18,6 +19,7 @@ class SettingsStream(CommonBaseStream):
                     "fields": fields,
                     "features": self._get_features(fields),
                     "site": self.context.config.site_name,
+                    "projects": self._get_projects(),
                 }
             ]
         )
@@ -58,3 +60,15 @@ class SettingsStream(CommonBaseStream):
             features.append("SPRINTS_SUPPORTED")
 
         return features
+
+    def _get_projects(self):
+        result: dict[str, dict[str, Any]] = {}
+
+        for project_id in self.project_ids:
+            for boards_page in self.context.jira.project_boards(project_id):
+                result[project_id] = {
+                    "id": project_id,
+                    "boards": [board["id"] for board in boards_page],
+                }
+
+        return result
