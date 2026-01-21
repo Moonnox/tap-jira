@@ -211,6 +211,15 @@ class Jira:
             else:
                 raise e
 
+    def project(self, project_id: str):
+        return self.request(
+            url=f"/rest/api/3/project/{project_id}",
+            method="GET",
+            params={
+                "expand": "issueTypes",
+            },
+        )
+
     def sprints(self, board_id: str):
         try:
             yield from JiraOffsetPaginator.default().pages(

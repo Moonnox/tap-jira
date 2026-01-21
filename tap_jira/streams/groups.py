@@ -13,6 +13,7 @@ from tap_jira.streams.project.board import BoardStream
 from tap_jira.streams.project.issue import IssueStream
 from tap_jira.streams.project.issue_comment import IssueCommentStream
 from tap_jira.streams.project.issue_status import IssueStatusStream
+from tap_jira.streams.project.issue_type import IssueTypeStream
 from tap_jira.streams.project.sprint import SprintStream
 
 
@@ -42,6 +43,7 @@ class ProjectStreamGroup(StreamGroup):
             IssueStream,
             IssueCommentStream,
             IssueStatusStream,
+            IssueTypeStream,
         ]
 
     def build_streams(

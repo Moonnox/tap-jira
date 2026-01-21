@@ -1,0 +1,78 @@
+{
+    "type": [
+        "null",
+        "object"
+    ],
+    "properties": {
+        "id": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "description": "The ID of the issue type."
+        },
+        "avatarId": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "The ID of the issue type's avatar."
+        },
+        "description": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "description": "The description of the issue type."
+        },
+        "entityId": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "description": "Unique ID for next-gen projects."
+        },
+        "hierarchyLevel": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "Hierarchy level of the issue type."
+        },
+        "iconUrl": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "description": "The URL of the issue type's avatar."
+        },
+        "name": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "description": "The name of the issue type."
+        },
+        "self": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "description": "The URL of these issue type details."
+        },
+        "subtask": {
+            "type": [
+                "null",
+                "boolean"
+            ],
+            "description": "Whether this issue type is a sub-task issue type."
+        },
+        "projectId": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "description": "The ID of the project this issue type belongs to."
+        }
+    }
+}
