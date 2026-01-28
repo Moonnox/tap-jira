@@ -2,9 +2,7 @@ from tap_jira.streams.base import ProjectBaseStream
 
 
 class IssueStatusStream(ProjectBaseStream):
-    @property
-    def name(self) -> str:
-        return "issue_statuses"
+    name = "issue_statuses"
 
     @property
     def primary_keys(self) -> list[str]:

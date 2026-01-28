@@ -12,10 +12,11 @@ from tap_jira.jira import Jira
 @dataclass
 class Config:
     start_date: str
+    site_name: str
 
     @classmethod
     def from_dict(cls, data: dict) -> "Config":
-        return cls(start_date=data["start_date"])
+        return cls(start_date=data["start_date"], site_name=data["site_name"])
 
 
 class Context:
@@ -38,7 +39,6 @@ class Context:
         self.jira = jira
         self.config = config
         self.state = state or {}
-        self.selected_streams = {}
         self.logger = logger
 
     def get_bookmarks(self) -> dict:
@@ -69,9 +69,3 @@ class Context:
 
         bookmark = self.get_bookmark(path[:-1])
         bookmark[path[-1]] = value
-
-    def set_selected_streams(self, streams: list[Any] | None = None) -> None:
-        if streams is None:
-            streams = []
-
-        self.selected_streams = {stream.name: stream for stream in streams}

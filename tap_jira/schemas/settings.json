@@ -1,0 +1,96 @@
+{
+  "type": [
+    "null",
+    "object"
+  ],
+  "properties": {
+    "account": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "active": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "email_address": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "avatar": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "tz": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
+    },
+    "site": {
+      "type": [
+        "string"
+      ]
+    },
+    "fields": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "patternProperties": {
+        ".+": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
+    },
+    "features": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "projects": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "patternProperties": {
+        ".+": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "boards": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

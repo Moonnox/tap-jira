@@ -3,7 +3,8 @@ from zoneinfo import ZoneInfo
 
 import singer
 
-from tap_jira.streams.base import BaseStream, ProjectBaseStream
+from tap_jira.streams.base import ProjectBaseStream
+from tap_jira.streams.project.issue_comment import IssueCommentStream
 
 
 def _format_datetime(dt: datetime, timezone: str) -> str:
@@ -13,9 +14,7 @@ def _format_datetime(dt: datetime, timezone: str) -> str:
 
 
 class IssueStream(ProjectBaseStream):
-    @property
-    def name(self) -> str:
-        return "issues"
+    name = "issues"
 
     @property
     def primary_keys(self) -> list[str]:
@@ -53,10 +52,7 @@ class IssueStream(ProjectBaseStream):
         singer.write_state(self.context.state)
 
     def _sync_issue_comments(self, page: list[dict]) -> None:
-        stream: BaseStream | None = None
-        if "issue_comments" in self.context.selected_streams:
-            stream = self.context.selected_streams.get("issue_comments")
-
+        stream = self.streams.get(IssueCommentStream)
         if not stream:
             return
 

@@ -105,10 +105,16 @@ class Jira:
 
         self._credentials: JiraCredentials | None = None
 
+    def myself(self):
+        return self.request(url="/rest/api/2/myself", method="GET")
+
     def timezone(self):
         result = self.request(url="/rest/api/2/myself", method="GET")
 
         return result.get("timeZone")
+
+    def fields(self):
+        return self.request(url="/rest/api/3/field", method="GET")
 
     def users(self):
         yield from JiraOffsetPaginator.default().pages(
@@ -119,13 +125,13 @@ class Jira:
             )
         )
 
-    def assignable_users(self, project_id: str):
+    def assignable_users(self, project_keys: list[str]):
         yield from JiraOffsetPaginator.default().pages(
             lambda params: self.request(
-                url="/rest/api/3/user/assignable/search",
+                url="/rest/api/3/user/assignable/multiProjectSearch",
                 method="GET",
                 params={
-                    "project": project_id,
+                    "projectKeys": ",".join(project_keys),
                     **params,
                 },
             )
@@ -204,6 +210,30 @@ class Jira:
                 return []
             else:
                 raise e
+
+    def project(self, project_id: str):
+        return self.request(
+            url=f"/rest/api/3/project/{project_id}",
+            method="GET",
+            params={
+                "expand": "issueTypes",
+            },
+        )
+
+    def sprints(self, board_id: str):
+        try:
+            yield from JiraOffsetPaginator.default().pages(
+                lambda params: self.request(
+                    url=f"/rest/agile/1.0/board/{board_id}/sprint",
+                    method="GET",
+                    params=params,
+                )
+            )
+        except JiraBadRequestException as e:
+            if "does not support sprints" in str(e):
+                # If the board does not support sprints, return an empty
+                # iterator
+                yield []
 
     def _fetch_projects(self, params: dict[str, Any]) -> dict[str, Any]:
         return self.request(

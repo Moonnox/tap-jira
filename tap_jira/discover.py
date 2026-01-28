@@ -17,16 +17,8 @@ def _load_schema(name: str) -> dict:
     return json.loads(schema_path.read_text(encoding="utf-8"))
 
 
-def _build_metadata(schema: Schema, default: dict | None = None):
+def _build_metadata(default: dict | None = None):
     metadata = Metadata.new()
-
-    if not schema.properties:
-        return Metadata.to_list(metadata)
-
-    for prop in schema.properties:
-        Metadata.write(
-            metadata, ("properties", prop), "inclusion", "available"
-        )
 
     if default:
         for key, value in default.items():
@@ -40,7 +32,7 @@ def run(context: Context) -> Catalog:
 
     try:
         schema = Schema.from_dict(_load_schema(DISCOVERY_SCHEMA_NAME))
-        metadata = _build_metadata(schema, {"group": "project"})
+        metadata = _build_metadata({"group": "project"})
         projects = chain.from_iterable(context.jira.projects())
 
         for project in projects:
