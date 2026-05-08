@@ -122,6 +122,12 @@
         "null",
         "string"
       ]
+    },
+    "projectName": {
+      "type": [
+        "null",
+        "string"
+      ]
     }
   }
 }
