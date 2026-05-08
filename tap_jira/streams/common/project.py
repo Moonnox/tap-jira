@@ -13,4 +13,7 @@ class ProjectStream(CommonBaseStream):
             return
 
         for page in self.context.jira.projects(ids=self.project_ids):
+            for project in page:
+                project["projectName"] = project["name"]
+
             self.write_page(page)
